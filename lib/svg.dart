@@ -780,8 +780,9 @@ class _SvgPictureState extends State<SvgPicture> {
     final SvgTheme? defaultSvgTheme = DefaultSvgTheme.of(context)?.theme;
     final TextStyle defaultTextStyle = DefaultTextStyle.of(context).style;
 
-    final Color currentColor =
-        widget.theme?.currentColor ?? defaultSvgTheme?.currentColor ?? const Color(0xFF000000);
+    final Color currentColor = widget.theme?.currentColor ??
+        defaultSvgTheme?.currentColor ??
+        const Color(0xFF000000);
 
     final double fontSize = widget.theme?.fontSize ??
         defaultSvgTheme?.fontSize ??
@@ -866,30 +867,28 @@ class _SvgPictureState extends State<SvgPicture> {
     if (_picture != null) {
       final Rect viewport = Offset.zero & _picture!.viewport.size;
 
-      double? width = widget.width;
-      double? height = widget.height;
-      if (width == null && height == null) {
-        width = viewport.width;
-        height = viewport.height;
-      } else if (height != null) {
-        width = height / viewport.height * viewport.width;
-      } else if (width != null) {
-        height = width / viewport.width * viewport.height;
-      }
-
       child = SizedBox(
-        width: width,
-        height: height,
-        child: FittedBox(
-          fit: widget.fit,
-          alignment: widget.alignment,
-          clipBehavior: widget.clipBehavior,
-          child: SizedBox.fromSize(
-            size: viewport.size,
-            child: RawPicture(
-              _picture,
-              matchTextDirection: widget.matchTextDirection,
-              allowDrawingOutsideViewBox: widget.allowDrawingOutsideViewBox,
+        width: widget.width,
+        height: widget.height,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: viewport.size.height,
+            maxWidth: viewport.size.width,
+          ),
+          child: AspectRatio(
+            aspectRatio: viewport.width / viewport.height,
+            child: FittedBox(
+              fit: widget.fit,
+              alignment: widget.alignment,
+              clipBehavior: widget.clipBehavior,
+              child: SizedBox.fromSize(
+                size: viewport.size,
+                child: RawPicture(
+                  _picture,
+                  matchTextDirection: widget.matchTextDirection,
+                  allowDrawingOutsideViewBox: widget.allowDrawingOutsideViewBox,
+                ),
+              ),
             ),
           ),
         ),
